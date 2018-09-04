@@ -12,7 +12,6 @@
 import firebase from 'firebase'
 
 export default {
-  
   name: 'signUp',
   data: function () {
     return {
@@ -28,8 +27,7 @@ export default {
         },
         function (err) {
           alert('Oops. ' + err.message)
-        }
-      )
+        })
     }
   }
 }
