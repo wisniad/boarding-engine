@@ -4,18 +4,18 @@
     <input type="text" placeholder="Email"><br>
     <input type="password" placeholder="Password"><br>
     <button>Sign up</button>
-    <span>or go back to login.</span>
+    <span>or go back to <router-link to="/login">login</router-link></span>
   </div>
 </template>
 
 <script>
-  export default {
-    name: 'signUp',
-    data: function() {
-      return {}
-    },
-    methods: {}
-  }
+export default {
+  name: 'signUp',
+  data: function () {
+    return {}
+  },
+  methods: {}
+}
 </script>
 
 <!-- Global CSS -->
