@@ -2,7 +2,14 @@
   <div>
     <h1>Game List</h1>
     <button v-on:click="logout">Logout</button>
-    <button v-on:click="createNew">Create new</button>
+    <button v-on:click="show">Create new</button>
+    <modal name="example"
+         :width="300"
+         :height="300"
+         @before-open="beforeOpen">
+      <input type="text" v-model="gameName" placeholder="Game name">
+      <button v-on:click="addGame">Add game</button>
+  </modal>
     <table>
       <tr>
         <th>Game name</th>
@@ -10,8 +17,8 @@
         <th>Play</th>
         <th>Delete</th>
       </tr>
-      <tr>
-        <td>Game name 1</td>
+      <tr :key="game.name" v-for="(game) in gameList">
+        <td>{{game.gameName}}</td>
         <td><button>Edit</button></td>
         <td><button>Play</button></td>
         <td><button>Delete</button></td>
@@ -22,11 +29,36 @@
 
 <script>
 import firebase from 'firebase'
+import uuid from 'uuid/v4'
 
 export default {
   name: 'gameList',
   data () {
-    return {}
+    return {
+      gameName: '',
+      gameList: {
+        gameUid1: {
+          gameName: 'Loading'
+        },
+        gameUid2: {
+          gameName: 'game'
+        },
+        gameUid3: {
+          gameName: 'data'
+        }
+      }
+    }
+  },
+  mounted: function () {
+    const uid = firebase.auth().currentUser.uid
+    firebase.database()
+      .ref('/users/')
+      .child(uid)
+      .child('games')
+      .once('value')
+      .then((snapshot) => {
+        this.gameList = snapshot.val()
+      })
   },
   methods: {
     logout: function () {
@@ -34,8 +66,46 @@ export default {
         this.$router.replace('login')
       })
     },
-    createNew: function () {
-      this.$router.replace('create-new')
+    beforeOpen () {
+      this.gameName = ''
+    },
+    show () {
+      this.$modal.show('example')
+    },
+    hide () {
+      this.$modal.hide('example')
+    },
+    addGame: function () {
+      const uid = firebase.auth().currentUser.uid
+
+      let gameUUID = uuid()
+      firebase.database()
+        .ref('users')
+        .child(uid)
+        .child('games')
+        .child(gameUUID)
+        .set({
+          gameName: this.gameName
+        })
+        .then(() => {
+          alert('Game added')
+          this.getGameList()
+          this.$modal.hide('example')
+        })
+        .catch((e) => {
+          console.log('This failed ' + e)
+        })
+    },
+    getGameList: function () {
+      const uid = firebase.auth().currentUser.uid
+      firebase.database()
+        .ref('/users/')
+        .child(uid)
+        .child('games')
+        .once('value')
+        .then((snapshot) => {
+          this.gameList = snapshot.val()
+        })
     }
   }
 }
