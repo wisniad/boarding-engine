@@ -17,11 +17,11 @@
         <th>Play</th>
         <th>Delete</th>
       </tr>
-      <tr :key="game.name" v-for="(game) in gameList">
-        <td>{{game.gameName}}</td>
+      <tr :key="index" v-for="(game, index) in gameList">
+        <td>{{index + 1}}. {{game.gameName}}</td>
         <td><button>Edit</button></td>
         <td><button>Play</button></td>
-        <td><button>Delete</button></td>
+        <td><button v-on:click="removeGame(game.id)">Delete</button></td>
       </tr>
     </table>
   </div>
@@ -36,17 +36,7 @@ export default {
   data () {
     return {
       gameName: '',
-      gameList: {
-        gameUid1: {
-          gameName: 'Loading'
-        },
-        gameUid2: {
-          gameName: 'game'
-        },
-        gameUid3: {
-          gameName: 'data'
-        }
-      }
+      gameList: []
     }
   },
   mounted: function () {
@@ -57,7 +47,12 @@ export default {
       .child('games')
       .once('value')
       .then((snapshot) => {
-        this.gameList = snapshot.val()
+        snapshot.forEach((childSnapshot) => {
+          this.gameList.push({
+            id: childSnapshot.key,
+            ...childSnapshot.val()
+          })
+        })
       })
   },
   methods: {
@@ -98,14 +93,34 @@ export default {
     },
     getGameList: function () {
       const uid = firebase.auth().currentUser.uid
+      this.gameList = []
       firebase.database()
         .ref('/users/')
         .child(uid)
         .child('games')
         .once('value')
         .then((snapshot) => {
-          this.gameList = snapshot.val()
+          snapshot.forEach((childSnapshot) => {
+            this.gameList.push({
+              id: childSnapshot.key,
+              ...childSnapshot.val()
+            })
+          })
         })
+    },
+    removeGame: function (gameId) {
+      const uid = firebase.auth().currentUser.uid
+      firebase.database()
+        .ref('/users/')
+        .child(uid)
+        .child('games')
+        .child(gameId)
+        .remove()
+        .then(() => {
+          alert('Game deleted')
+          this.getGameList()
+        })
+        .catch((e) => { console.log('Game error' + e) })
     }
   }
 }
