@@ -3,6 +3,8 @@ import Router from 'vue-router'
 import Login from '@/components/Login'
 import SignUp from '@/components/SignUp'
 import GameList from '@/components/GameList'
+import Edit from '@/components/Edit'
+
 import firebase from 'firebase'
 Vue.use(Router)
 
@@ -33,15 +35,24 @@ let router = new Router({
       meta: {
         requiresAuth: true
       }
+    },
+    {
+      path: '/edit/:gid',
+      name: 'Edit',
+      component: Edit,
+      meta: {
+        requiresAuth: true
+      }
     }
   ]
 })
+
 router.beforeEach((to, from, next) => {
   let currentUser = firebase.auth().currentUser
   let requiresAuth = to.matched.some(record => record.meta.requiresAuth)
 
   if (requiresAuth && !currentUser) next('login')
-  else if (!requiresAuth && currentUser) next('game-list')
+  //  else if (!requiresAuth && currentUser) next('game-list')
   else next()
 })
 

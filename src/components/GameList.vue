@@ -19,7 +19,7 @@
       </tr>
       <tr :key="index" v-for="(game, index) in gameList">
         <td>{{index + 1}}. {{game.gameName}}</td>
-        <td><button>Edit</button></td>
+        <td><button v-on:click="edit(game.id)">Edit {{game.id}}</button><router-link to="/edit/123">Edit link</router-link></td>
         <td><button>Play</button></td>
         <td><button v-on:click="removeGame(game.id)">Delete</button></td>
       </tr>
@@ -60,6 +60,9 @@ export default {
       firebase.auth().signOut().then(() => {
         this.$router.replace('login')
       })
+    },
+    edit: function (gid) {
+      this.$router.replace('edit/' + gid)
     },
     beforeOpen () {
       this.gameName = ''
